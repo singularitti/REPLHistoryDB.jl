@@ -15,7 +15,7 @@ end
 struct Record
     time::DateTime
     mode::REPLMode
-    code::String
+    input::String
 end
 
 function Base.parse(::Type{Record}, str::AbstractString)
@@ -46,13 +46,13 @@ function Base.parse(::Type{Record}, str::AbstractString)
     else
         error("")
     end
-    code = join(
+    input = join(
         map(eachsplit(lines[3], '\n')) do line
             lstrip(line, '\t')
         end,
         '\n',
     )
-    return Record(time, mode, rstrip(code, '\n'))
+    return Record(time, mode, rstrip(input, '\n'))
 end
 
 function readblocks(str::AbstractString)
@@ -76,7 +76,7 @@ function readfile(filename=find_hist_file())
         if startswith(line, "# time:")
             push!(blocks, block)  # Record `block`
             block = line * '\n'  # Clear and renew `block`
-        else  # `mode` or `code`
+        else  # `mode` or `input`
             block *= line * '\n'
         end
     end
@@ -88,12 +88,12 @@ Base.show(io::IO, ::PkgMode) = print(io, "pkg")
 Base.show(io::IO, ::ShellMode) = print(io, "shell")
 Base.show(io::IO, ::HelpMode) = print(io, "help")
 Base.show(io::IO, mode::CustomMode) = print(io, mode.mode)
-Base.show(io::IO, record::Record) = print(io, record.code)
+Base.show(io::IO, record::Record) = print(io, record.input)
 function Base.show(io::IO, ::MIME"text/plain", record::Record)
     println(io, summary(record))
     println(io, "time: ", format(record.time, "yyyy-mm-dd HH:MM:SS"))
     println(io, "mode: ", record.mode)
-    print(io, "input: ", record.code)
+    print(io, "input: ", record.input)
     return nothing
 end
 
