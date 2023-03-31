@@ -9,7 +9,7 @@ struct PkgMode <: REPLMode end
 struct ShellMode <: REPLMode end
 struct HelpMode <: REPLMode end
 struct CustomMode <: REPLMode
-    mode::String
+    type::String
 end
 
 struct Record
@@ -91,7 +91,7 @@ Base.show(io::IO, ::JuliaMode) = print(io, "julia")
 Base.show(io::IO, ::PkgMode) = print(io, "pkg")
 Base.show(io::IO, ::ShellMode) = print(io, "shell")
 Base.show(io::IO, ::HelpMode) = print(io, "help")
-Base.show(io::IO, mode::CustomMode) = print(io, mode.mode)
+Base.show(io::IO, mode::CustomMode) = print(io, mode.type)
 Base.show(io::IO, record::Record) = print(io, record.input)
 function Base.show(io::IO, ::MIME"text/plain", record::Record)
     println(io, summary(record))
