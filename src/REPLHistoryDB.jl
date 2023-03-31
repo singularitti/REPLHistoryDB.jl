@@ -37,6 +37,8 @@ function Base.parse(::Type{Record}, str::AbstractString)
             PkgMode()
         elseif mode_str == "shell"
             ShellMode()
+        elseif mode_str == "help"
+            HelpMode()
         else
             CustomMode(mode_str)
         end
