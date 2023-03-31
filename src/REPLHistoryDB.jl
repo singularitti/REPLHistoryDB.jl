@@ -1,6 +1,7 @@
 module REPLHistoryDB
 
 using Dates: DateTime, DateFormat
+using REPL: find_hist_file
 
 abstract type REPLMode end
 struct JuliaMode <: REPLMode end
@@ -54,6 +55,20 @@ function readblocks(str::AbstractString)
     blocks = String[]
     block = ""
     for line in eachsplit(str, '\n')
+        if startswith(line, "# time:")
+            push!(blocks, block)  # Record `block`
+            block = line * '\n'  # Clear and renew `block`
+        else  # `mode` or `code`
+            block *= line * '\n'
+        end
+    end
+    return filter(!isempty, blocks)
+end
+
+function readfile(filename=find_hist_file())
+    blocks = String[]
+    block = ""
+    for line in eachline(filename)
         if startswith(line, "# time:")
             push!(blocks, block)  # Record `block`
             block = line * '\n'  # Clear and renew `block`
