@@ -1,6 +1,6 @@
 module REPLHistoryDB
 
-using Dates: DateTime, DateFormat
+using Dates: DateTime, DateFormat, format
 using REPL: find_hist_file
 
 abstract type REPLMode end
@@ -81,6 +81,20 @@ function readfile(filename=find_hist_file())
         end
     end
     return filter(!isempty, blocks)
+end
+
+Base.show(io::IO, ::JuliaMode) = print(io, "julia")
+Base.show(io::IO, ::PkgMode) = print(io, "pkg")
+Base.show(io::IO, ::ShellMode) = print(io, "shell")
+Base.show(io::IO, ::HelpMode) = print(io, "help")
+Base.show(io::IO, mode::CustomMode) = print(io, mode.mode)
+Base.show(io::IO, record::Record) = print(io, record.code)
+function Base.show(io::IO, ::MIME"text/plain", record::Record)
+    println(io, summary(record))
+    println(io, "time: ", format(record.time, "yyyy-mm-dd HH:MM:SS"))
+    println(io, "mode: ", record.mode)
+    print(io, "input: ", record.code)
+    return nothing
 end
 
 end
