@@ -16,8 +16,8 @@ struct Record
     code::String
 end
 
-function parse(::Type{Record}, str::AbstractString)
-    lines = split(str; limit=3, keepempty=false)
+function Base.parse(::Type{Record}, str::AbstractString)
+    lines = split(str, '\n'; limit=3, keepempty=false)
     @assert length(lines) == 3
     line = lines[1]
     if startswith(line, "# time:")
@@ -29,15 +29,15 @@ function parse(::Type{Record}, str::AbstractString)
     end
     line = lines[2]
     if startswith(line, "# mode:")
-        mode = line[9:end]
-        if mode == "julia"
+        mode_str = line[9:end]
+        mode = if mode_str == "julia"
             JuliaMode()
-        elseif mode == "pkg"
+        elseif mode_str == "pkg"
             PkgMode()
-        elseif mode == "shell"
+        elseif mode_str == "shell"
             ShellMode()
         else
-            CustomMode(mode)
+            CustomMode(mode_str)
         end
     else
         error("")
