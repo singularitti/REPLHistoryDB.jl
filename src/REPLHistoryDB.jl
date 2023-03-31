@@ -47,7 +47,7 @@ function Base.parse(::Type{Record}, str::AbstractString)
         error("")
     end
     line = lines[3]
-    code = join((subline[9:end] for subline in eachsplit(line)), '\n')
+    code = join(eachsplit(line), '\n')
     return Record(time, mode, code)
 end
 
