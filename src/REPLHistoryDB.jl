@@ -13,7 +13,7 @@ struct CustomMode <: REPLMode
 end
 
 struct Record
-    time::DateTime
+    timestamp::DateTime
     mode::REPLMode
     input::String
 end
@@ -95,7 +95,7 @@ Base.show(io::IO, mode::CustomMode) = print(io, mode.type)
 Base.show(io::IO, record::Record) = print(io, record.input)
 function Base.show(io::IO, ::MIME"text/plain", record::Record)
     println(io, summary(record))
-    println(io, "time: ", format(record.time, "yyyy-mm-dd HH:MM:SS"))
+    println(io, "timestamp: ", format(record.timestamp, "yyyy-mm-dd HH:MM:SS"))
     println(io, "mode: ", record.mode)
     print(io, "input: ", record.input)
     return nothing
