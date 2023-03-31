@@ -18,16 +18,16 @@ struct Record
     input::String
 end
 
-function Base.parse(::Type{Record}, str::AbstractString)
+# See https://github.com/JuliaLang/julia/blob/v1.9.0-rc1/base/uuid.jl#L48-L85
+function Base.tryparse(::Type{Record}, str::AbstractString)
     lines = split(str, '\n'; limit=3, keepempty=false)
-    @assert length(lines) == 3
     line = lines[1]
     if startswith(line, "# time:")
         time_str = line[9:end]
         time_str = join(split(time_str, " "; keepempty=false)[1:2], " ")
         time = DateTime(time_str, DateFormat("yyyy-mm-dd HH:MM:SS"))
     else
-        error("")
+        return nothing
     end
     line = lines[2]
     if startswith(line, "# mode:")
@@ -44,7 +44,7 @@ function Base.parse(::Type{Record}, str::AbstractString)
             CustomMode(mode_str)
         end
     else
-        error("")
+        return nothing
     end
     input = join(
         map(eachsplit(lines[3], '\n')) do line
@@ -53,6 +53,10 @@ function Base.parse(::Type{Record}, str::AbstractString)
         '\n',
     )
     return Record(time, mode, rstrip(input, '\n'))
+end
+function Base.parse(::Type{Record}, str::AbstractString)
+    record = tryparse(Record, str)
+    return record === nothing ? error("cannot parse record!") : record
 end
 
 function readblocks(str::AbstractString)
