@@ -46,9 +46,13 @@ function Base.parse(::Type{Record}, str::AbstractString)
     else
         error("")
     end
-    line = lines[3]
-    code = join(eachsplit(line), '\n')
-    return Record(time, mode, code)
+    code = join(
+        map(eachsplit(lines[3], '\n')) do line
+            lstrip(line, '\t')
+        end,
+        '\n',
+    )
+    return Record(time, mode, rstrip(code, '\n'))
 end
 
 function readblocks(str::AbstractString)
