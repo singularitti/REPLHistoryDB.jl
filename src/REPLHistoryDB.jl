@@ -3,6 +3,8 @@ module REPLHistoryDB
 using Dates: DateTime, DateFormat, format
 using REPL: find_hist_file
 
+export Record, readblocks, readfile
+
 abstract type REPLMode end
 struct JuliaMode <: REPLMode end
 struct PkgMode <: REPLMode end
@@ -58,6 +60,31 @@ function Base.parse(::Type{Record}, str::AbstractString)
     record = tryparse(Record, str)
     return record === nothing ? error("cannot parse record!") : record
 end
+
+struct RecordIterator
+    string::String
+end
+
+function Base.iterate(iter::RecordIterator, state)
+    str = iter.string
+    blocks = String[]
+    block = ""
+    for line in eachsplit(str, '\n')
+        if startswith(line, "# time:")
+            push!(blocks, block)  # Record `block`
+            block = line * '\n'  # Clear and renew `block`
+        else  # `mode` or `code`
+            block *= line * '\n'
+        end
+    end
+    return filter(!isempty, blocks)
+end
+
+Base.IteratorSize(::Type{RecordIterator}) = Base.SizeUnknown()
+
+Base.eltype(::Type{RecordIterator}) = Record
+
+eachrecord(str::AbstractString) = RecordIterator(str)
 
 function readblocks(str::AbstractString)
     blocks = String[]
